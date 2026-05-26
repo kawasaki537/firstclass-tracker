@@ -15,5 +15,9 @@ jobs:
         with:
           python-version: '3.11'
 
+ 
       - name: Run script
+        env:
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          CHAT_ID: ${{ secrets.CHAT_ID }}
         run: python main.py
