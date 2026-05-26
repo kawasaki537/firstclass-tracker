@@ -1,16 +1,25 @@
 import os
 import requests
 
-TOKEN = os.environ["BOT_TOKEN"]
+BOT_TOKEN = os.environ["BOT_TOKEN"]
 CHAT_ID = os.environ["CHAT_ID"]
 
-message = "龍蝦 AI 已成功啟動 🦞"
+# 模擬機票價格
+price = 3999
 
-url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
+# 你的目標價格
+target_price = 5500
 
-requests.post(url, data={
-    "chat_id": CHAT_ID,
-    "text": message
-})
+if price <= target_price:
+    message = f"🦞 發現便宜機票！\n\nTPE → BKK\n價格：{price} TWD"
 
-print("Message sent")
+    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+
+    requests.post(url, json={
+        "chat_id": CHAT_ID,
+        "text": message
+    })
+
+    print("已發送通知")
+else:
+    print("價格太高")
