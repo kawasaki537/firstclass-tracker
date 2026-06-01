@@ -2,8 +2,10 @@ name: Run Python
 
 on:
   workflow_dispatch:
- schedule:
+
+  schedule:
     - cron: '0 */6 * * *'
+
 jobs:
   run:
     runs-on: ubuntu-latest
