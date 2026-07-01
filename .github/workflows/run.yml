@@ -1,4 +1,4 @@
-name: Run Python
+name: Lobster AI
 
 on:
   workflow_dispatch:
@@ -18,8 +18,10 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install requests
-        run: pip install requests
+      - name: Install dependencies
+        run: |
+          pip install requests playwright
+          playwright install chromium
 
       - name: Run script
         env:
