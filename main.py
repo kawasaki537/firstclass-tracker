@@ -1,16 +1,18 @@
+from playwright.sync_api import sync_playwright
+
 import config
 
 print("🦞 Lobster AI")
+print(f"Searching {config.FROM} -> {config.TO}")
 
-print(f"Route : {config.FROM} -> {config.TO}")
-print(f"Go    : {config.GO_DATE}")
-print(f"Back  : {config.BACK_DATE}")
-print(f"Budget: {config.MAX_PRICE}")
+with sync_playwright() as p:
+    browser = p.chromium.launch(headless=True)
 
-print("Airlines:")
-for airline in config.AIRLINES:
-    print(" -", airline)
+    page = browser.new_page()
 
-print("Direct only :", config.DIRECT_ONLY)
-print("Go before   :", config.GO_BEFORE)
-print("No redeye   :", config.NO_REDEYE)
+    page.goto("https://tw.trip.com", wait_until="networkidle")
+
+    print("Page title:")
+    print(page.title())
+
+    browser.close()
