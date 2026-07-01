@@ -1,25 +1,16 @@
-import os
-import requests
+import config
 
-BOT_TOKEN = os.environ["BOT_TOKEN"]
-CHAT_ID = os.environ["CHAT_ID"]
+print("🦞 Lobster AI")
 
-# 模擬機票價格
-price = 3999
+print(f"Route : {config.FROM} -> {config.TO}")
+print(f"Go    : {config.GO_DATE}")
+print(f"Back  : {config.BACK_DATE}")
+print(f"Budget: {config.MAX_PRICE}")
 
-# 你的目標價格
-target_price = 5500
+print("Airlines:")
+for airline in config.AIRLINES:
+    print(" -", airline)
 
-if price <= target_price:
-    message = f"🦞 發現便宜機票！\n\nTPE → BKK\n價格：{price} TWD"
-
-    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
-
-    requests.post(url, json={
-        "chat_id": CHAT_ID,
-        "text": message
-    })
-
-    print("已發送通知")
-else:
-    print("價格太高")
+print("Direct only :", config.DIRECT_ONLY)
+print("Go before   :", config.GO_BEFORE)
+print("No redeye   :", config.NO_REDEYE)
