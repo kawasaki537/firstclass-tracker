@@ -109,9 +109,9 @@ def is_qualifying_offer(offer: dict) -> bool:
     ):
         return False
 
-    # The outbound flight must depart before the configured local-time cutoff.
+    # The outbound flight must depart at or before the configured local-time cutoff.
     outbound_departure = outbound_segments[0].get("departure", {}).get("at", "")
-    if outbound_departure and outbound_departure[11:16] >= config.GO_BEFORE:
+    if outbound_departure and outbound_departure[11:16] > config.GO_BEFORE:
         return False
 
     all_segments = outbound_segments + inbound_segments
@@ -196,7 +196,7 @@ def main() -> int:
     print(f"Dates: {config.GO_DATE} / {config.BACK_DATE}")
     print(f"Budget: {config.CURRENCY} {config.MAX_PRICE}")
     print(f"Airlines: {', '.join(config.AIRLINES)}")
-    print(f"Direct only: {config.DIRECT_ONLY}; outbound before {config.GO_BEFORE}")
+    print(f"Direct only: {config.DIRECT_ONLY}; outbound at or before {config.GO_BEFORE}")
     print(f"Exclude red-eye departures: {config.NO_REDEYE}")
 
     token = get_amadeus_token()
@@ -257,7 +257,7 @@ def main() -> int:
             "",
         ])
     lines.append(
-        "篩選：BR／CI／JX、去程 11:00 前、直飛、排除 22:00–05:59 起飛航段。"
+        "篩選：BR／CI／JX、去程不晚於 11:00、直飛、排除 22:00–05:59 起飛航段。"
     )
     lines.append("價格與座位可能變動；此通知不是訂票或最終出票確認。")
 
