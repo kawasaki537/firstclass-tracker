@@ -1,0 +1,50 @@
+name: Telegram Test Message
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  send-test-message:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Send a test message to Telegram
+        env:
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          CHAT_ID: ${{ secrets.CHAT_ID }}
+        run: |
+          python - <<'PY'
+          import os
+          import sys
+          import requests
+
+          token = os.getenv("BOT_TOKEN", "").strip()
+          chat_id = os.getenv("CHAT_ID", "").strip()
+          if not token or not chat_id:
+              print("Missing GitHub Actions secrets BOT_TOKEN or CHAT_ID.")
+              sys.exit(1)
+
+          response = requests.post(
+              f"https://api.telegram.org/bot{token}/sendMessage",
+              json={
+                  "chat_id": chat_id,
+                  "text": "🦞 Lobster AI 測試訊息：Telegram 通知測試成功！如果你收到這則訊息，代表目前可以正常收到機器人訊息。",
+              },
+              timeout=20,
+          )
+          print("Telegram HTTP status:", response.status_code)
+          try:
+              payload = response.json()
+          except ValueError:
+              print("Telegram returned a non-JSON response.")
+              sys.exit(1)
+
+          if not response.ok or not payload.get("ok"):
+              print("Telegram send failed:", payload)
+              sys.exit(1)
+
+          print("Test message sent successfully.")
+          PY
