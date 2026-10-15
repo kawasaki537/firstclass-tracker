@@ -4,28 +4,26 @@
 FROM = "TPE"
 TO = "KIX"
 
-# Date
-GO_DATE = "2026-08-28"
-BACK_DATE = "2026-08-31"
+# Fixed round-trip dates (YYYY-MM-DD)
+GO_DATE = "2027-06-01"
+BACK_DATE = "2027-06-30"
 
-# Budget
-MAX_PRICE = 12000
+# One adult; budget applies to the complete round trip in TWD
+ADULTS = 1
+CURRENCY = "TWD"
+MAX_PRICE = 15000
 
-# Airlines
+# Allowed airlines
 AIRLINES = [
-    "BR",   # EVA
-    "CI",   # China Airlines
-    "JX"    # STARLUX
+    "BR",  # EVA Air
+    "CI",  # China Airlines
+    "JX",  # STARLUX Airlines
 ]
 
-# Flight Rules
+# Flight rules
 DIRECT_ONLY = True
+GO_BEFORE = "11:00"  # outbound departure local time must be earlier than 11:00
+NO_REDEYE = True     # excludes departures from 22:00 through 05:59 local time
 
-# Outbound flight must depart no later than 11:00
-GO_BEFORE = "11:00"
-
-# Exclude red-eye flights
-NO_REDEYE = True
-
-# Telegram
+# Notify only on first qualifying fare or a lower fare than the last notification
 SEND_ONLY_ON_PRICE_DROP = True
