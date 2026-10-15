@@ -134,10 +134,11 @@ def is_qualifying_offer(offer: dict) -> bool:
     ):
         return False
 
-    # The outbound flight must depart at or before the configured local-time cutoff.
-    outbound_departure = outbound_segments[0].get("departure", {}).get("at", "")
     if not outbound_segments or not inbound_segments:
         return False
+
+    # The outbound flight must depart at or before the configured local-time cutoff.
+    outbound_departure = outbound_segments[0].get("departure", {}).get("at", "")
 
     if outbound_departure and outbound_departure[11:16] > config.GO_BEFORE:
         return False
