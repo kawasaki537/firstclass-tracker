@@ -1,6 +1,7 @@
 import json
 import os
 import sys
+from datetime import date
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
 
@@ -14,6 +15,30 @@ TIMEOUT = 30
 
 class FlightSearchError(RuntimeError):
     pass
+
+
+def validate_config() -> None:
+    """Validate route/date/settings before making any external API requests."""
+    try:
+        go_date = date.fromisoformat(config.GO_DATE)
+        back_date = date.fromisoformat(config.BACK_DATE)
+    except (TypeError, ValueError) as exc:
+        raise FlightSearchError("GO_DATE and BACK_DATE must use YYYY-MM-DD dates.") from exc
+
+    if go_date < date.today():
+        raise FlightSearchError(f"GO_DATE {go_date} is in the past.")
+    if back_date <= go_date:
+        raise FlightSearchError("BACK_DATE must be later than GO_DATE.")
+    if not config.FROM or not config.TO or config.FROM == config.TO:
+        raise FlightSearchError("FROM and TO must be different airport codes.")
+    if not config.AIRLINES:
+        raise FlightSearchError("AIRLINES must contain at least one airline code.")
+    if config.ADULTS < 1:
+        raise FlightSearchError("ADULTS must be at least 1.")
+    if Decimal(str(config.MAX_PRICE)) <= 0:
+        raise FlightSearchError("MAX_PRICE must be greater than zero.")
+    if len(config.GO_BEFORE) != 5 or config.GO_BEFORE[2] != ":":
+        raise FlightSearchError("GO_BEFORE must use HH:MM format.")
 
 
 def required_env(name: str) -> str:
@@ -111,6 +136,9 @@ def is_qualifying_offer(offer: dict) -> bool:
 
     # The outbound flight must depart at or before the configured local-time cutoff.
     outbound_departure = outbound_segments[0].get("departure", {}).get("at", "")
+    if not outbound_segments or not inbound_segments:
+        return False
+
     if outbound_departure and outbound_departure[11:16] > config.GO_BEFORE:
         return False
 
@@ -191,6 +219,7 @@ def save_state(state: dict) -> None:
 
 
 def main() -> int:
+    validate_config()
     print("🦞 Lobster AI — live flight-price check")
     print(f"Route: {config.FROM} → {config.TO} → {config.FROM}")
     print(f"Dates: {config.GO_DATE} / {config.BACK_DATE}")
