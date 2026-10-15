@@ -3,34 +3,50 @@ name: Lobster AI
 on:
   workflow_dispatch:
 
+  # Run every 12 hours (UTC).
   schedule:
-    - cron: '0 */6 * * *'
+    - cron: "0 */12 * * *"
+
+permissions:
+  contents: read
 
 jobs:
   run:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out repository
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          cache: "pip"
 
-      - name: Install packages
-        run: |
-          pip install requests playwright
-          playwright install chromium
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip requests
 
-      - name: Run Lobster
+      - name: Restore previous price state
+        uses: actions/cache/restore@v4
+        with:
+          path: price_state.json
+          key: lobster-price-state-${{ github.run_id }}
+          restore-keys: |
+            lobster-price-state-
+
+      - name: Search live flight offers and notify Telegram
         env:
+          AMADEUS_CLIENT_ID: ${{ secrets.AMADEUS_CLIENT_ID }}
+          AMADEUS_CLIENT_SECRET: ${{ secrets.AMADEUS_CLIENT_SECRET }}
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
           CHAT_ID: ${{ secrets.CHAT_ID }}
         run: python main.py
 
-      - name: Upload Screenshot
-        uses: actions/upload-artifact@v4
+      - name: Save latest price state
+        if: success() && hashFiles('price_state.json') != ''
+        uses: actions/cache/save@v4
         with:
-          name: lobster-screenshot
-          path: trip.png
+          path: price_state.json
+          key: lobster-price-state-${{ github.run_id }}
